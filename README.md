@@ -3,7 +3,8 @@ Installer for the GoldenEye: Source linux server
 
 This does not currently work as the linux server SO file is not publicly available.
 
-##Currently tested disro's (please let me know if you test any other distros so i can update this)
+##Currently tested disro's
+(please let me know if you test any other distros so i can update this)
 * ubuntu server 16.04
 
 ##Usage
