@@ -116,22 +116,29 @@ if [ "$1" == "-a" ] || [ "$1" == "-A" ] && [ "$2" != "" ] && [ "$3" != "" ] && [
 	usrstop=0
 
 fi
-
-if [ "$1" == "-uninstall" ];then
-	installlocation=$(head -n 1 /var/log/install_ges.log)
-	if [ "$installlocation" != "" ];then
-		read -p '	Are you sure you want to uninstall the server from '${green}${installlocation}${reset}'? [y/n]: ' douninstall
-		if checkiftrue $douninstall;then
-			rm -d -r /home/$installlocation/Steam
-			rm -d -r /home/$installlocation/steamcmd
-			rm -d -r /home/$installlocation/ges_server
-			rm -d -r /home/$installlocation/ges_downloads
-			rm -d -r install_ges.sh
-			rm -d -r run_ges.sh
-			rm -d -r update_ges.sh
+if [ ! -f /var/log/install_ges.log ];then
+	touch /var/log/install_ges.log
+fi
+installlocation=$(head -n 1 /var/log/install_ges.log)
+if [ "$1" == "-uninstall" ];then	
+	if [ ! -f $installlocation ];then
+		if [ "$installlocation" != "" ];then
+			read -p '	Are you sure you want to uninstall the server from '${green}${installlocation}${reset}'? [y/n]: ' douninstall
+			if checkiftrue $douninstall;then
+				rm -d -r /home/$installlocation/Steam
+				rm -d -r /home/$installlocation/steamcmd
+				rm -d -r /home/$installlocation/ges_server
+				rm -d -r /home/$installlocation/ges_downloads
+				rm -d -r install_ges.sh
+				rm -d -r run_ges.sh
+				rm -d -r update_ges.sh
+				exit 0
+			fi
+			exit 0
+		else
+			echo "No record of previous installation"
 			exit 0
 		fi
-		exit 0
 	else
 		echo "No record of previous installation"
 		exit 0
@@ -139,15 +146,17 @@ if [ "$1" == "-uninstall" ];then
 fi
 
 if checkiffalse $automated;then
-	if [ "$(head -n 1 /var/log/install_ges.log)" != "" ];then
-		echo "	SERVER ALREADY INSTALLED"
-		read -p "	Are you sure you want to continue? [${green}y/n${reset}]" alreadyinstallcont
-		if checkiftrue $alreadyinstallcont;then
-			echo ""
-		else
-			exit 1
-		fi
+	if [ ! -f $installlocation ];then
+		if [ "$(head -n 1 /var/log/install_ges.log)" != "" ];then
+			echo "	SERVER ALREADY INSTALLED"
+			read -p "	Are you sure you want to continue? [${green}y/n${reset}]" alreadyinstallcont
+			if checkiftrue $alreadyinstallcont;then
+				echo ""
+			else
+				exit 1
+			fi
 
+		fi
 	fi
 fi
 
