@@ -8,14 +8,32 @@
 # find pam_service_name=vsftpd and change vsftpd to ftp
 # service vsftpd restart
 
+set -e
+
+#welcome screen
+
+echo "${green}"
+echo "	|-------------------------------------------------------------------|"
+echo "	|	Welcome to the GoldenEye:Source server installer by ${red}DEATH${green}   |"
+echo "	|	This Script will install all the required prerequisites     |"
+echo "	|	including steamcmd, server files, library files, ect.       |"
+echo "	|-------------------------------------------------------------------|"
+echo "${reset}"
+
+
+if [ $(id -u) != "0" ]; then
+    echo "You must be the superuser to run this script" >&2
+    echo ""
+    exit 1
+fi
+
 if [ -x $(command -v apt-get >/dev/null) ];then
 	echo ""
 else
 	echo "You dont have apt-get... it is required"
+	echo ""
 	exit 1
 fi
-
-set -e
 
 #Install file locations
 
@@ -81,19 +99,6 @@ if [ "$1" == "-a" ] || [ "$1" == "-A" ] && [ "$2" != "" ] && [ "$3" != "" ] && [
 	usrstop=0
 
 fi
-if [ "$1" == "-uninstall" ];then
-	installlocation=$(head -n 1 /var/log/install_ges.log)
-	read -p '	Are you sure you want to uninstall the server from $installlocation?' douninstall
-	if checkiftrue $douninstall;then
-		rm -d -r /home/$installlocation/Steam
-		rm -d -r /home/$installlocation/steamcmd
-		rm -d -r /home/$installlocation/ges_server
-		rm -d -r install_ges.sh
-		rm -d -r run_ges.sh
-		rm -d -r update_ges.sh
-		exit 0
-	fi
-fi
 
 #Some housekeeping variables
 
@@ -106,18 +111,25 @@ UL=$(tput cuu1)
 EL=$(tput el)
 curdir=$(pwd)
 
-#welcome screen
-
-echo "${green}"
-echo "	|-------------------------------------------------------------------|"
-echo "	|	Welcome to the GoldenEye:Source server installer by ${red}DEATH${green}   |"
-echo "	|	This Script will install all the required prerequisites     |"
-echo "	|	including steamcmd, server files, library files, ect.       |"
-echo "	|	                                                            |"
-echo "	|	This script has been tested on ubuntu server                |"
-echo "	|	it may not work on different distributions                  |"
-echo "	|-------------------------------------------------------------------|"
-echo "${reset}"
+if [ "$1" == "-uninstall" ];then
+	installlocation=$(head -n 1 /var/log/install_ges.log)
+	if [ "$installlocation" != "" ];then
+		read -p '	Are you sure you want to uninstall the server from '${green}${installlocation}${reset}'? [y/n]: ' douninstall
+		if checkiftrue $douninstall;then
+			rm -d -r /home/$installlocation/Steam
+			rm -d -r /home/$installlocation/steamcmd
+			rm -d -r /home/$installlocation/ges_server
+			rm -d -r install_ges.sh
+			rm -d -r run_ges.sh
+			rm -d -r update_ges.sh
+			exit 0
+		fi
+		exit 0
+	else
+		echo "No record of previous installation"
+		exit 0
+	fi
+fi
 
 if checkiffalse $automated;then
 	if [ "$(head -n 1 /var/log/install_ges.log)" != "" ];then
@@ -130,11 +142,6 @@ if checkiffalse $automated;then
 		fi
 
 	fi
-fi
-
-if [ $(id -u) != "0" ]; then
-    echo "You must be the superuser to run this script" >&2
-    exit 1
 fi
 
 #install the required prerequisites for server, start task in the background
@@ -298,7 +305,9 @@ fi
 #here we wait to make sure that apt-get commands are finished as they were running in the background during the questions
 
 echo "	${green}Waiting for prerequisites to finish installing..${reset}"
-cp install_ges.sh /home/$useraccount/
+if [ ! -d "/home/$useraccount/" ]; then
+	cp install_ges.sh /home/$useraccount/
+fi
 cd /home/$useraccount/
 
 wait $pid1
