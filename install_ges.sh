@@ -10,8 +10,20 @@
 
 set -e
 
+#Some housekeeping variables
+
+red=`tput setaf 1`
+green=`tput setaf 2`
+yellow=`tput setaf 3`
+blue=`tput setaf 4`
+reset=`tput sgr0`
+UL=$(tput cuu1)
+EL=$(tput el)
+curdir=$(pwd)
+
 #welcome screen
 
+clear
 echo "${green}"
 echo "	|-------------------------------------------------------------------|"
 echo "	|	Welcome to the GoldenEye:Source server installer by ${red}DEATH${green}   |"
@@ -58,12 +70,17 @@ checkiffalse()
 }
 
 steamdl='https://steamcdn-a.akamaihd.net/client/installer/steamcmd_linux.tar.gz'
+steamdlname='steamcmd_linux.tar.gz'
 serverfilesdl='http://files-us.gamestand.net/GoldenEye_Source_v5.0_full_server.7z'
+serverfilesdlname='GoldenEye_Source_v5.0_full_server.7z'
 serversodl=''
+serversodlname='server_i486.tar.gz'
 serversmdl='https://www.sourcemod.net/smdrop/1.8/sourcemod-1.8.0-git5928-linux.tar.gz'
+serversmdlname='sourcemod-1.8.0-git5928-linux.tar.gz'
 servermmdl='http://www.gsptalk.com/mirror/sourcemod/mmsource-1.10.6-linux.tar.gz'
+servermmdlname='mmsource-1.10.6-linux.tar.gz'
 prerequisites='gcc-4.9 g++-4.9 p7zip-full sudo wget nano lib32gcc1 lib32stdc++6 lib32z1 gdb'
-clear
+
 if [ "$1" == "-h" ] || [ "$1" == "--h" ] || [ "$1" == "-help" ] || [ "$1" == "--help" ];then
 	echo ''
 	echo 'For automated install, '
@@ -99,17 +116,6 @@ if [ "$1" == "-a" ] || [ "$1" == "-A" ] && [ "$2" != "" ] && [ "$3" != "" ] && [
 	usrstop=0
 
 fi
-
-#Some housekeeping variables
-
-red=`tput setaf 1`
-green=`tput setaf 2`
-yellow=`tput setaf 3`
-blue=`tput setaf 4`
-reset=`tput sgr0`
-UL=$(tput cuu1)
-EL=$(tput el)
-curdir=$(pwd)
 
 if [ "$1" == "-uninstall" ];then
 	installlocation=$(head -n 1 /var/log/install_ges.log)
@@ -203,6 +209,8 @@ if checkiffalse $automated;then
 fi
 echo
 
+installlocation='/home/'$useraccount'/ges_server'
+
 #add the user from the command above, with no output
 echo $useraccount > /var/log/install_ges.log
 set +e
@@ -224,14 +232,21 @@ servername="GoldenEye: Source v5.0 Server"
 servermaxplayers=16
 serverpassword=""
 serverregion=0
-serverrcon=""
 if checkiffalse $automated;then
+	echo ""
 	echo "	Lets setup some server variables"
 	echo ""
 	read -p "	Server Name? [${green}${servername}${reset}]: " servername
 	read -p "	Max Players? [${green}${servermaxplayers}${reset}](please stay at 16 or under): " servermaxplayers
 	read -p "	If you want your server to be private, fill in a password [${green}NONE${reset}]: " serverpassword
-	read -p "	Enter a rcon password [${green}NONE${reset}]: " serverrcon
+	read -p "	Enter a rcon password [${green}(required)${reset}] : " serverrcon
+	while :
+		do	
+			if [ "$serverrcon" != "" ];then
+				break
+			fi
+			read -p "	Enter a rcon password [${red}(required)${reset}]  : " serverrcon
+		done
 	echo ""
 	echo "	0=US East coast"
 	echo "	1=US West coast"
@@ -254,7 +269,7 @@ if checkiftrue $installservice; then
 		if checkiffalse $automated;then
 			echo "${green}"
 			echo "	server launch parameters?"
-			echo "	${yellow} ${serviceprams}${green}"
+			echo "${yellow} ${serviceprams}${green}"
 			echo '	Enter custom launch prameters or press enter for default: '
 			echo "${reset}"
 			read -p '	['${green}'PRAMS'${reset}']: ' praminput
@@ -317,9 +332,9 @@ wait $pid1
 set +e
 mkdir -p /home/$useraccount/ges_downloads
 mkdir -p /home/$useraccount/steamcmd
-mkdir -p /home/$useraccount/ges_server
-mkdir -p /home/$useraccount/ges_server/gesource
-mkdir -p /home/$useraccount/ges_server/gesource/bin
+mkdir -p $installlocation
+mkdir -p $installlocation/gesource
+mkdir -p $installlocation/gesource/bin
 chown -R $useraccount:$useraccount /home/$useraccount
 echo &
 pid9=$!
@@ -328,26 +343,26 @@ cd /home/$useraccount/ges_downloads
 
 #start the download for the required files, each task spawned in the background so they download the same time
 
-su $useraccount -c 'wget -c -q "'${serversodl}'" -O server_i486.tar.gz' &
+su $useraccount -c 'wget -c -N -q "'${serversodl}'" -O '${serversodlname}'' &
 pid2=$!
 
-su $useraccount -c 'wget -c -q '${steamdl}' --no-check-certificate' &
+su $useraccount -c 'wget -c -N -q '${steamdl}' --no-check-certificate' &
 pid3=$!
 
-su $useraccount -c 'wget -c -q '${serverfilesdl}' -O gesource.7z' &
+su $useraccount -c 'wget -c -N -q '${serverfilesdl}'' &
 pid4=$!
 
 #if user said yes to install source mod, download required files and install them
 
 {
-if checkiffalse $doinstallsm; then
-	su $useraccount -c 'wget -nc -q '${servermmdl}' -O sourcemm.tar.gz'
-	su $useraccount -c 'wget -nc -q '${serversmdl}' -O sourcesm.tar.gz'
-	su $useraccount -c 'tar -xf sourcemm.tar.gz -C /home/'${useraccount}'/ges_server/gesource/ > /dev/null'
-	su $useraccount -c 'tar -xf sourcesm.tar.gz -C /home/'${useraccount}'/ges_server/gesource/ > /dev/null'
-	echo " addons/sourcemod/bin/sourcemod_mm" >> /home/$useraccount/ges_server/gesource/addons/metamod/metaplugins.ini
+if checkiftrue $doinstallsm; then
+	su $useraccount -c 'wget -nc -q '${servermmdl}' -O '${servermmdlname}''
+	su $useraccount -c 'wget -nc -q '${serversmdl}' -O '${serversmdlname}''
+	su $useraccount -c 'tar -xf '${servermmdlname}' -C '$installlocation'/gesource/ > /dev/null'
+	su $useraccount -c 'tar -xf '${serversmdlname}' -C '$installlocation'/gesource/ > /dev/null'
+	echo " addons/sourcemod/bin/sourcemod_mm" >> $installlocation/gesource/addons/metamod/metaplugins.ini
 	if [ "${steam_id}" != "" ]; then
-		 echo "'${steam_id}' 'z'" >> /home/$useraccount/ges_server/gesource/addons/sourcemod/configs/admins_simple.ini
+		 echo "'${steam_id}' 'z'" >> $installlocation/gesource/addons/sourcemod/configs/admins_simple.ini
  	fi
 fi
 } &
@@ -356,43 +371,50 @@ pid5=$!
 #start the extraction for the downloads, all wait on their downloads to finish before extracting
 
 {
-while [ -e /proc/${pid3} ]; do sleep 0.1; done
-su $useraccount -c 'tar -xf steamcmd_linux.tar.gz -C /home/'${useraccount}'/steamcmd > /dev/null'
+while [ -e /proc/${pid3} ]; do sleep 0.25; done
+su $useraccount -c 'tar -xf '${steamdlname}' -C /home/'${useraccount}'/steamcmd > /dev/null'
 } &
 pid11=$!
 
 {
-while [ -e /proc/${pid4} ]; do sleep 0.1; done
-su $useraccount -c '7z x -y -o/home/'${useraccount}'/ges_server/gesource gesource.7z > /dev/null'
-if [ "$servername" != "GoldenEye: Source v5.0 Server" ];then sed -i '/hostname "Gold/c\""/g' /home/${servername}/ges_server/gesource/cfg/server.cfg;fi
-if [ "$serverrcon" != "" ];then sed -i '/rcon_password "/c\""/g' /home/${servername}/ges_server/gesource/cfg/server.cfg;fi
-if [ "$serverpassword" != "" ];then sed -i '/sv_password "/c\""/g' /home/${servername}/ges_server/gesource/cfg/server.cfg;fi
-if [ "$serverregion" != "0" ];then sed -i '/sv_region/c\""/g' /home/${servername}/ges_server/gesource/cfg/server.cfg;fi
-echo "" >> /home/${useraccount}/ges_server/gesource/cfg/server.cfg
-if [ "$servername" != "GoldenEye: Source v5.0 Server" ];then echo 'hostname="'${servername}'"' >> /home/${useraccount}/ges_server/gesource/cfg/server.cfg;fi
-if [ "$serverrcon" != "" ];then echo 'rcon_password="'${serverrcon}'"' >> /home/${useraccount}/ges_server/gesource/cfg/server.cfg;fi
-if [ "$serverpassword" != "" ];then echo 'sv_password="'${serverpassword}'"' >> /home/${useraccount}/ges_server/gesource/cfg/server.cfg;fi
-if [ "$serverregion" != "0" ];then echo 'sv_region="'${serverregion}'"' >> /home/${useraccount}/ges_server/gesource/cfg/server.cfg;fi
+while [ -e /proc/${pid4} ]; do sleep 0.25; done
+su $useraccount -c '7z x -y -o'$installlocation'/gesource '$serverfilesdlname' > /dev/null'
+if [ "$servername" != "GoldenEye: Source v5.0 Server" ];then sed -i '/hostname "Gold/c\""/g' $installlocation/gesource/cfg/server.cfg;fi
+if [ "$serverrcon" != "" ];then sed -i '/rcon_password "/c\""/g' $installlocation/gesource/cfg/server.cfg;fi
+if [ "$serverpassword" != "" ];then sed -i '/sv_password "/c\""/g' $installlocation/gesource/cfg/server.cfg;fi
+if [ "$serverregion" != "0" ];then sed -i '/sv_region/c\""/g' $installlocation/gesource/cfg/server.cfg;fi
+echo "" >> $installlocation/gesource/cfg/server.cfg
+if [ "$servername" != "GoldenEye: Source v5.0 Server" ];then echo 'hostname="'${servername}'"' >> $installlocation/gesource/cfg/server.cfg;fi
+if [ "$serverrcon" != "" ];then echo 'rcon_password="'${serverrcon}'"' >> $installlocation/gesource/cfg/server.cfg;fi
+if [ "$serverpassword" != "" ];then echo 'sv_password="'${serverpassword}'"' >> $installlocation/gesource/cfg/server.cfg;fi
+if [ "$serverregion" != "0" ];then echo 'sv_region="'${serverregion}'"' >> $installlocation/gesource/cfg/server.cfg;fi
 } &
 pid6=$!
 
 {
-while [ -e /proc/${pid2} ]; do sleep 0.1; done
-su $useraccount -c 'tar -xf server_i486.tar.gz -C /home/'${useraccount}'/ges_server/gesource/bin > /dev/null'
+while [ -e /proc/${pid2} ]; do sleep 0.25; done
+su $useraccount -c 'tar -xf '${serversodlname}' -C '$installlocation'/gesource/bin > /dev/null'
 } &
 pid7=$!
 
 cd /home/$useraccount/steamcmd
 
 {
-while [ -e /proc/${pid11} ]; do sleep 0.1; done
+while [ -e /proc/${pid11} ]; do sleep 0.25; done
 chown -R $useraccount:$useraccount /home/$useraccount/*
 chown -R $useraccount:$useraccount /home/$useraccount/steamcmd
-su $useraccount -c '/home/'${useraccount}'/steamcmd/steamcmd.sh +logon anonymous +force_install_dir /home/'${useraccount}'/ges_server +app_update 310 +quit > /dev/null'
+su $useraccount -c '/home/'${useraccount}'/steamcmd/steamcmd.sh +logon anonymous +force_install_dir '$installlocation' +app_update 310 +quit > /dev/null'
 } &
 pid8=$!
 
 cd /home/$useraccount/
+
+{
+while [ -e /proc/${pid8} ]; do sleep 0.25; done
+su $useraccount -c './update_ges.sh > /dev/null'
+} &
+pid12=$!
+
 #generate update_ges.sh and run_ges.sh files for the user
 
 echo "" > /home/$useraccount/run_ges.sh
@@ -400,7 +422,7 @@ echo 'MALLOC_CHECK_=0 ./srcds_run -game ./gesource -console +maxplayers '$server
 echo 'cd ges_server' | cat - /home/$useraccount/run_ges.sh > temp && mv temp /home/$useraccount/run_ges.sh
 
 echo "" > /home/$useraccount/update_ges.sh
-echo './steamcmd.sh +logon anonymous +force_install_dir /home/'${useraccount}'/ges_server +app_update 310 validate +quit' | cat - /home/$useraccount/update_ges.sh > temp && mv temp /home/$useraccount/update_ges.sh
+echo './steamcmd.sh +logon anonymous +force_install_dir '$installlocation' +app_update 310 validate +quit' | cat - /home/$useraccount/update_ges.sh > temp && mv temp /home/$useraccount/update_ges.sh
 echo 'cd steamcmd' | cat - /home/$useraccount/update_ges.sh > temp && mv temp /home/$useraccount/update_ges.sh
 
 #installing the server service
@@ -492,9 +514,9 @@ if checkiftrue $doinstallservice; then
 
 	EOF5
 		echo 'ARGS="'${serviceprams}'"' | cat - /etc/init.d/ges_server > temp && mv temp /etc/init.d/ges_server
-		echo 'CHDIR=/home/'${useraccount}'/ges_server' | cat - /etc/init.d/ges_server > temp && mv temp /etc/init.d/ges_server
+		echo 'CHDIR='${installlocation}'' | cat - /etc/init.d/ges_server > temp && mv temp /etc/init.d/ges_server
 		echo 'DIR=/home/'${useraccount}'/steamcmd' | cat - /etc/init.d/ges_server > temp && mv temp /etc/init.d/ges_server
-		echo 'DAEMON=/home/'${useraccount}'/ges_server/srcds_run' | cat - /etc/init.d/ges_server > temp && mv temp /etc/init.d/ges_server
+		echo 'DAEMON='${installlocation}'/srcds_run' | cat - /etc/init.d/ges_server > temp && mv temp /etc/init.d/ges_server
 		echo 'USER="'${useraccount}'"' | cat - /etc/init.d/ges_server > temp && mv temp /etc/init.d/ges_server
 		echo 'GROUP="'${useraccount}'"' | cat - /etc/init.d/ges_server > temp && mv temp /etc/init.d/ges_server
 		echo "#!/bin/bash" | cat - /etc/init.d/ges_server > temp && mv temp /etc/init.d/ges_server
@@ -513,7 +535,9 @@ chmod +x update_ges.sh
 #setup the three different status effects, waiting, running, and done.
 
 piddownloading="${blue}DOWNLOADING${reset}"
+pidverifying="${yellow}VERIFYING${reset}"
 pidwaiting="${red}WAITING${reset}"
+pidinstalling="${blue}INSTALLING${reset}"
 pidrunning="${yellow}RUNNING${reset}"
 piddone="${green}DONE${reset}"
 
@@ -576,7 +600,9 @@ do
 		if [ -e /proc/$pid11 ];then
 			dedsvrext=$pidwaiting
 		elif [ -e /proc/$pid8 ];then
-			dedsvrext=$pidrunning
+			dedsvrext=$pidinstalling
+		elif [ -e /proc/$pid12 ];then
+			dedsvrext=$pidverifying 
 		else
 			dedsvrext=$piddone
 	fi
@@ -616,9 +642,10 @@ cd /home/$useraccount/
 echo
 echo "${green}	Finishing up...."
 
+chown -R $useraccount:$useraccount /home/$useraccount/*
+
 #run the update_ges.sh this has the validate command attached to ensure the server files downloaded properly
 
-su $useraccount -c './update_ges.sh > /dev/null'
 if [ "$doinstallservice" == "N" ];then
 echo
 echo  "		DONE! open ${yellow}run_ges.sh${green} with ${yellow}nano run_ges.sh"
@@ -627,6 +654,7 @@ echo  "		to update the server run ${yellow}./update_ges.sh${green}"
 echo 
 echo  "		now start your server with ${yellow}"screen ./run_ges.sh"${green} !!!"
 echo  "		you can exit that screen and leave the server running with ${yellow}CTRL+A then d${green}"
+echo  "		To edit server config file ${yellow}nano $installlocation$/gesource/cfg/server.cfg{green}"
 else
 echo
 echo  "		DONE!"
@@ -634,13 +662,12 @@ echo  "		You choose to install GoldenEye Source Server as a service"
 echo  "		you can operate the server with ${yellow}sudo service ges_server start${green}"
 echo  "		Other ges_server commands are: start, stop, restart, status"
 echo  ""
-echo  "		To edit the server launch options type ${yellow}nano /etc/defult/ges_server${green}"
+echo  "		To edit the server launch options: ${yellow}nano /etc/defult/ges_server${green}"
+echo  "		To edit server config file ${yellow}nano $installlocation$/gesource/cfg/server.cfg{green}"
 echo 
 echo "${reset}"
 fi
 
 #switch to the specified user account
-
-chown -R $useraccount:$useraccount /home/$useraccount/*
 
 exit 0
