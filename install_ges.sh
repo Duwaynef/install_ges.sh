@@ -364,10 +364,10 @@ pid11=$!
 {
 while [ -e /proc/${pid4} ]; do sleep 0.1; done
 su $useraccount -c '7z x -y -o/home/'${useraccount}'/ges_server/gesource gesource.7z > /dev/null'
-if [ "$servername" != "GoldenEye: Source v5.0 Server" ];then sed -i '/hostname "Gold/c\""/g' /home/jimmy/ges_server/gesource/cfg/server.cfg;fi
-if [ "$serverrcon" != "" ];then sed -i '/rcon_password "/c\""/g' /home/jimmy/ges_server/gesource/cfg/server.cfg;fi
-if [ "$serverpassword" != "" ];then sed -i '/sv_password "/c\""/g' /home/jimmy/ges_server/gesource/cfg/server.cfg;fi
-if [ "$serverregion" != "0" ];then sed -i '/sv_region/c\""/g' /home/jimmy/ges_server/gesource/cfg/server.cfg;fi
+if [ "$servername" != "GoldenEye: Source v5.0 Server" ];then sed -i '/hostname "Gold/c\""/g' /home/${servername}/ges_server/gesource/cfg/server.cfg;fi
+if [ "$serverrcon" != "" ];then sed -i '/rcon_password "/c\""/g' /home/${servername}/ges_server/gesource/cfg/server.cfg;fi
+if [ "$serverpassword" != "" ];then sed -i '/sv_password "/c\""/g' /home/${servername}/ges_server/gesource/cfg/server.cfg;fi
+if [ "$serverregion" != "0" ];then sed -i '/sv_region/c\""/g' /home/${servername}/ges_server/gesource/cfg/server.cfg;fi
 echo "" >> /home/${useraccount}/ges_server/gesource/cfg/server.cfg
 if [ "$servername" != "GoldenEye: Source v5.0 Server" ];then echo 'hostname="'${servername}'"' >> /home/${useraccount}/ges_server/gesource/cfg/server.cfg;fi
 if [ "$serverrcon" != "" ];then echo 'rcon_password="'${serverrcon}'"' >> /home/${useraccount}/ges_server/gesource/cfg/server.cfg;fi
