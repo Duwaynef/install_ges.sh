@@ -119,6 +119,7 @@ if [ "$1" == "-uninstall" ];then
 			rm -d -r /home/$installlocation/Steam
 			rm -d -r /home/$installlocation/steamcmd
 			rm -d -r /home/$installlocation/ges_server
+			rm -d -r /home/$installlocation/ges_downloads
 			rm -d -r install_ges.sh
 			rm -d -r run_ges.sh
 			rm -d -r update_ges.sh
