@@ -421,7 +421,9 @@ su $useraccount -c './update_ges.sh > /dev/null'
 pid12=$!
 
 #generate update_ges.sh and run_ges.sh files for the user
-
+if [ "$servermaxplayers" == "" ];then
+	servermaxplayers=16
+fi
 echo "" > /home/$useraccount/run_ges.sh
 echo 'MALLOC_CHECK_=0 ./srcds_run -game ./gesource -console +maxplayers '$servermaxplayers' +map ge_archives +exec server.cfg' | cat - /home/$useraccount/run_ges.sh > temp && mv temp /home/$useraccount/run_ges.sh
 echo 'cd ges_server' | cat - /home/$useraccount/run_ges.sh > temp && mv temp /home/$useraccount/run_ges.sh
