@@ -79,6 +79,7 @@ serversmdl='https://www.sourcemod.net/smdrop/1.8/sourcemod-1.8.0-git5928-linux.t
 serversmdlname='sourcemod-1.8.0-git5928-linux.tar.gz'
 servermmdl='http://www.gsptalk.com/mirror/sourcemod/mmsource-1.10.6-linux.tar.gz'
 servermmdlname='mmsource-1.10.6-linux.tar.gz'
+logfile='/var/log/ges_server.log'
 prerequisites='gcc-4.9 g++-4.9 p7zip-full sudo wget nano lib32gcc1 lib32stdc++6 lib32z1 gdb'
 
 if [ "$1" == "-h" ] || [ "$1" == "--h" ] || [ "$1" == "-help" ] || [ "$1" == "--help" ];then
@@ -116,13 +117,14 @@ if [ "$1" == "-a" ] || [ "$1" == "-A" ] && [ "$2" != "" ] && [ "$3" != "" ] && [
 	usrstop=0
 
 fi
-if [ ! -f /var/log/install_ges.log ];then
-	touch /var/log/install_ges.log
+if [ ! -f $logfile ];then
+	touch $logfile
 fi
-installlocation=$(head -n 1 /var/log/install_ges.log)
-if [ "$1" == "-uninstall" ];then	
-	if [ ! -f $installlocation ];then
-		if [ "$installlocation" != "" ];then
+
+installlocationlog=$(head -n 1 /var/log/install_ges.log)
+
+if [ "$1" == "-uninstall" ];then
+		if [ "$installlocationlog" != "" ];then
 			read -p '	Are you sure you want to uninstall the server from '${green}${installlocation}${reset}'? [y/n]: ' douninstall
 			if checkiftrue $douninstall;then
 				rm -d -r /home/$installlocation/Steam
@@ -139,15 +141,10 @@ if [ "$1" == "-uninstall" ];then
 			echo "No record of previous installation"
 			exit 0
 		fi
-	else
-		echo "No record of previous installation"
-		exit 0
-	fi
 fi
 
 if checkiffalse $automated;then
-	if [ ! -f $installlocation ];then
-		if [ "$(head -n 1 /var/log/install_ges.log)" != "" ];then
+		if [ "$installlocationlog" != "" ];then
 			echo "	SERVER ALREADY INSTALLED"
 			read -p "	Are you sure you want to continue? [${green}y/n${reset}]" alreadyinstallcont
 			if checkiftrue $alreadyinstallcont;then
@@ -157,7 +154,6 @@ if checkiffalse $automated;then
 			fi
 
 		fi
-	fi
 fi
 
 #install the required prerequisites for server, start task in the background
@@ -352,13 +348,13 @@ cd /home/$useraccount/ges_downloads
 
 #start the download for the required files, each task spawned in the background so they download the same time
 
-su $useraccount -c 'wget -c -N -q "'${serversodl}'" -O '${serversodlname}'' &
+su $useraccount -c 'wget -c -q "'${serversodl}'" -O '${serversodlname}'' &
 pid2=$!
 
-su $useraccount -c 'wget -c -N -q '${steamdl}' --no-check-certificate' &
+su $useraccount -c 'wget -c -q '${steamdl}' --no-check-certificate' &
 pid3=$!
 
-su $useraccount -c 'wget -c -N -q '${serverfilesdl}'' &
+su $useraccount -c 'wget -c -q '${serverfilesdl}'' &
 pid4=$!
 
 #if user said yes to install source mod, download required files and install them
