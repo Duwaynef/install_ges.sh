@@ -79,7 +79,7 @@ serversmdl='https://www.sourcemod.net/smdrop/1.8/sourcemod-1.8.0-git5928-linux.t
 serversmdlname='sourcemod-1.8.0-git5928-linux.tar.gz'
 servermmdl='http://www.gsptalk.com/mirror/sourcemod/mmsource-1.10.6-linux.tar.gz'
 servermmdlname='mmsource-1.10.6-linux.tar.gz'
-logfile='/var/log/ges_server.log'
+logfile='/var/log/install_ges.log'
 prerequisites='gcc-4.9 g++-4.9 p7zip-full sudo wget nano lib32gcc1 lib32stdc++6 lib32z1 gdb'
 
 if [ "$1" == "-h" ] || [ "$1" == "--h" ] || [ "$1" == "-help" ] || [ "$1" == "--help" ];then
