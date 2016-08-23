@@ -73,14 +73,14 @@ steamdl='https://steamcdn-a.akamaihd.net/client/installer/steamcmd_linux.tar.gz'
 steamdlname='steamcmd_linux.tar.gz'
 serverfilesdl='http://files-us.gamestand.net/GoldenEye_Source_v5.0_full_server.7z'
 serverfilesdlname='GoldenEye_Source_v5.0_full_server.7z'
-serversodl=''
+serversodl='https://docs.google.com/uc?authuser=0&id=0B-pu9e7kdGypWVdUb2dDY3ZiWHM&export=download'
 serversodlname='server_i486.tar.gz'
 serversmdl='https://www.sourcemod.net/smdrop/1.8/sourcemod-1.8.0-git5928-linux.tar.gz'
 serversmdlname='sourcemod-1.8.0-git5928-linux.tar.gz'
 servermmdl='http://www.gsptalk.com/mirror/sourcemod/mmsource-1.10.6-linux.tar.gz'
 servermmdlname='mmsource-1.10.6-linux.tar.gz'
 logfile='/var/log/install_ges.log'
-prerequisites='gcc-4.9 g++-4.9 p7zip-full sudo wget nano lib32gcc1 lib32stdc++6 lib32z1 gdb'
+prerequisites="gcc-4.9 g++-4.9 p7zip-full sudo wget nano lib32gcc1 lib32stdc++6 lib32z1 gdb"
 
 if [ "$1" == "-h" ] || [ "$1" == "--h" ] || [ "$1" == "-help" ] || [ "$1" == "--help" ];then
 	echo ''
@@ -120,7 +120,6 @@ fi
 if [ ! -f $logfile ];then
 	touch $logfile
 fi
-
 installlocationlog=$(head -n 1 /var/log/install_ges.log)
 
 if [ "$1" == "-uninstall" ];then
@@ -160,16 +159,11 @@ fi
 
 {
 apt-get upgrade -y -qq > /dev/null 2>&1
-
 apt-get update -y -qq > /dev/null 2>&1
-
 apt-get install -y software-properties-common -qq > /dev/null 2>&1
-
 add-apt-repository -y ppa:ubuntu-toolchain-r/test > /dev/null 2>&1
-
 apt-get update -y -qq > /dev/null 2>&1
-
-apt-get install -y $prerequisites -qq > /dev/null 2>&1
+apt-get install -y -qq $prerequisites > /dev/null 2>&1
 } &
 pid1=$!
 
@@ -325,15 +319,23 @@ fi
 
 #here we wait to make sure that apt-get commands are finished as they were running in the background during the questions
 
-echo "	${green}Waiting for prerequisites to finish installing..${reset}"
+echo -n "	${green}Waiting for prerequisites to finish installing.. ${reset}"
+
 if [ ! -d "/home/$useraccount/" ]; then
 	cp install_ges.sh /home/$useraccount/
 fi
+
 cd /home/$useraccount/
 
-wait $pid1
+while [ -e /proc/${pid1} ]; 
+do 
+echo -n "."
+sleep 0.5
+done
+echo ''
 
 #start folder creation in the background
+
 set +e
 mkdir -p /home/$useraccount/ges_downloads
 mkdir -p /home/$useraccount/steamcmd
@@ -343,6 +345,7 @@ mkdir -p $installlocation/gesource/bin
 chown -R $useraccount:$useraccount /home/$useraccount
 echo &
 pid9=$!
+
 set -e
 cd /home/$useraccount/ges_downloads
 
