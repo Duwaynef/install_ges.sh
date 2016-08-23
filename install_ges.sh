@@ -160,7 +160,7 @@ fi
 {
 apt-get upgrade -y -qq > /dev/null 2>&1
 apt-get update -y -qq > /dev/null 2>&1
-apt-get install -y software-properties-common -qq > /dev/null 2>&1
+apt-get install -y -qq software-properties-common > /dev/null 2>&1
 add-apt-repository -y ppa:ubuntu-toolchain-r/test > /dev/null 2>&1
 apt-get update -y -qq > /dev/null 2>&1
 apt-get install -y -qq $prerequisites > /dev/null 2>&1
