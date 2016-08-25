@@ -6,6 +6,7 @@ This does not currently work as the linux server SO file is not publicly availab
 ##Currently tested disro's
 (please let me know if you test any other distros so i can update this)
 * ubuntu server 16.04
+* Debian 8.5
 
 ##Usage
 
