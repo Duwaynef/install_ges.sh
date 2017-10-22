@@ -71,14 +71,12 @@ checkiffalse()
 
 steamdl='https://steamcdn-a.akamaihd.net/client/installer/steamcmd_linux.tar.gz'
 steamdlname='steamcmd_linux.tar.gz'
-serverfilesdl='http://files-us.gamestand.net/GoldenEye_Source_v5.0_full_server.7z'
-serverfilesdlname='GoldenEye_Source_v5.0_full_server.7z'
-serversodl=''
-serversodlname='server_i486.tar.gz'
-serversmdl='https://www.sourcemod.net/smdrop/1.8/sourcemod-1.8.0-git5928-linux.tar.gz'
-serversmdlname='sourcemod-1.8.0-git5928-linux.tar.gz'
-servermmdl='http://www.gsptalk.com/mirror/sourcemod/mmsource-1.10.6-linux.tar.gz'
-servermmdlname='mmsource-1.10.6-linux.tar.gz'
+serverfilesdl='https://getsio.net/ext/geshl2.com/Server/GoldenEye_Source_v5.0.6_full_server.7z'
+serverfilesdlname='GoldenEye_Source_v5.0.6_full_server.7z'
+serversmdl='https://sm.alliedmods.net/smdrop/1.8/sourcemod-1.8.0-git6028-linux.tar.gz'
+serversmdlname='sourcemod-1.8.0-git6028-linux.tar.gz'
+servermmdl='https://mms.alliedmods.net/mmsdrop/1.10/mmsource-1.10.7-git959-linux.tar.gz'
+servermmdlname='mmsource-1.10.7-git959-linux.tar.gz'
 logfile='/var/log/install_ges.log'
 prerequisites="gcc-4.9 g++-4.9 p7zip-full sudo wget nano lib32gcc1 lib32stdc++6 lib32z1 gdb"
 
@@ -351,9 +349,6 @@ cd /home/$useraccount/ges_downloads
 
 #start the download for the required files, each task spawned in the background so they download the same time
 
-su $useraccount -c 'wget -c -q "'${serversodl}'" -O '${serversodlname}'' &
-pid2=$!
-
 su $useraccount -c 'wget -c -q '${steamdl}' --no-check-certificate' &
 pid3=$!
 
@@ -398,12 +393,6 @@ if [ "$serverpassword" != "" ];then echo 'sv_password="'${serverpassword}'"' >> 
 if [ "$serverregion" != "0" ];then echo 'sv_region="'${serverregion}'"' >> $installlocation/gesource/cfg/server.cfg;fi
 } &
 pid6=$!
-
-{
-while [ -e /proc/${pid2} ]; do sleep 0.25; done
-su $useraccount -c 'tar -xf '${serversodlname}' -C '$installlocation'/gesource/bin > /dev/null'
-} &
-pid7=$!
 
 cd /home/$useraccount/steamcmd
 
@@ -561,11 +550,6 @@ do
 		else
 			dirstrpro=$piddone
 	fi
-	if [ -e /proc/$pid2 ];then
-			svrsodl=$piddownloading
-		else
-			svrsodl=$piddone
-	fi
 		if [ -e /proc/$pid3 ];then
 			cmddlpro=$piddownloading
 		else
@@ -600,13 +584,6 @@ do
 		else
 			gessvrext=$piddone
 	fi
-		if [ -e /proc/$pid2 ];then
-			svrsoext=$pidwaiting
-		elif [ -e /proc/$pid7 ];then
-			svrsoext=$pidrunning
-		else
-			svrsoext=$piddone
-	fi
 		if [ -e /proc/$pid11 ];then
 			dedsvrext=$pidwaiting
 		elif [ -e /proc/$pid8 ];then
@@ -616,33 +593,29 @@ do
 		else
 			dedsvrext=$piddone
 	fi
-		if [ -e /proc/$pid1 ] || [ -e /proc/$pid2 ] || [ -e /proc/$pid3 ] || [ -e /proc/$pid4 ] || [ -e /proc/$pid5 ] || [ -e /proc/$pid6 ] || [ -e /proc/$pid7 ] || [ -e /proc/$pid8 ] || [ -e /proc/$pid9 ] || [ -e /proc/$pid10 ] || [ -e /proc/$pid11 ];then
+		if [ -e /proc/$pid1 ] || [ -e /proc/$pid3 ] || [ -e /proc/$pid4 ] || [ -e /proc/$pid5 ] || [ -e /proc/$pid6 ] || [ -e /proc/$pid8 ] || [ -e /proc/$pid9 ] || [ -e /proc/$pid10 ] || [ -e /proc/$pid11 ];then
 			if [ "$frn" == "0" ];then 
 			echo -e "$UL$EL$UL$EL$UL$EL$UL$EL$UL$EL$UL$EL$UL$EL$UL$EL$UL$EL$UL$EL\c"
 			fi
 			frn=0
 			echo "	${green}Create Directory Structure${reset} [ ${dirstrpro} ]"
-			echo "	${green}Server_i486.so Download${reset} [ ${svrsodl} ]"
 			echo "	${green}Steamcmd Download${reset} [ ${cmddlpro} ]"
 			echo "	${green}GoldenEye:Source Server Files Download${reset} [ ${gessvrdl} ]"
 			echo "	${green}Source Mod Install${reset} [ ${smipro} ]"
 			echo "	${green}Service installation${reset} [ ${svsinpro} ]"
 			echo "	${green}Extracting steamcmd${reset} [ ${cmdextpro} ]"
 			echo "	${green}Extracting GoldenEye:Source Server files${reset} [ ${gessvrext} ]"
-			echo "	${green}Extracting server_i486.so file${reset} [ ${svrsoext} ]"
 			echo "	${green}Source 2007 Dedicated Server Install${reset} [ ${dedsvrext} ]"			
 			sleep 1
 		else
 			echo -e "$UL$EL$UL$EL$UL$EL$UL$EL$UL$EL$UL$EL$UL$EL$UL$EL$UL$EL$UL$EL\c"
 			echo "	${green}Create Directory Structure${reset} [ ${dirstrpro} ]"
-			echo "	${green}Server_i486.so Download${reset} [ ${svrsodl} ]"
 			echo "	${green}Steamcmd Download${reset} [ ${cmddlpro} ]"
 			echo "	${green}GoldenEye:Source Server Files Download${reset} [ ${gessvrdl} ]"
 			echo "	${green}Source Mod Install${reset} [ ${smipro} ]"
 			echo "	${green}Service installation${reset} [ ${svsinpro} ]"
 			echo "	${green}Extracting steamcmd${reset} [ ${cmdextpro} ]"
 			echo "	${green}Extracting GoldenEye:Source Server files${reset} [ ${gessvrext} ]"
-			echo "	${green}Extracting server_i486.so file${reset} [ ${svrsoext} ]"
 			echo "	${green}Source 2007 Dedicated Server Install${reset} [ ${dedsvrext} ]"	
 			break
 		fi
