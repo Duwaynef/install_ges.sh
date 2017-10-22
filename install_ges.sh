@@ -69,6 +69,7 @@ checkiffalse()
 	esac
 }
 
+serververname='GoldenEye: Source v5.0.6 Server'
 steamdl='https://steamcdn-a.akamaihd.net/client/installer/steamcmd_linux.tar.gz'
 steamdlname='steamcmd_linux.tar.gz'
 serverfilesdl='https://getsio.net/ext/geshl2.com/Server/GoldenEye_Source_v5.0.6_full_server.7z'
@@ -225,7 +226,7 @@ if checkiffalse $automated;then
 	done
 fi
 #if the user says yes to install as a service, setup the server file for creation
-servername="GoldenEye: Source v5.0 Server"
+servername=$serververname
 servermaxplayers=16
 serverpassword=""
 serverregion=0
@@ -382,12 +383,12 @@ pid11=$!
 {
 while [ -e /proc/${pid4} ]; do sleep 0.25; done
 su $useraccount -c '7z x -y -o'$installlocation'/gesource '$serverfilesdlname' > /dev/null'
-if [ "$servername" != "GoldenEye: Source v5.0 Server" ];then sed -i '/hostname "Gold/c\""/g' $installlocation/gesource/cfg/server.cfg;fi
+if [ "$servername" != $serververname ];then sed -i '/hostname "Gold/c\""/g' $installlocation/gesource/cfg/server.cfg;fi
 if [ "$serverrcon" != "" ];then sed -i '/rcon_password "/c\""/g' $installlocation/gesource/cfg/server.cfg;fi
 if [ "$serverpassword" != "" ];then sed -i '/sv_password "/c\""/g' $installlocation/gesource/cfg/server.cfg;fi
 if [ "$serverregion" != "0" ];then sed -i '/sv_region/c\""/g' $installlocation/gesource/cfg/server.cfg;fi
 echo "" >> $installlocation/gesource/cfg/server.cfg
-if [ "$servername" != "GoldenEye: Source v5.0 Server" ];then echo 'hostname="'${servername}'"' >> $installlocation/gesource/cfg/server.cfg;fi
+if [ "$servername" != $serververname ];then echo 'hostname="'${servername}'"' >> $installlocation/gesource/cfg/server.cfg;fi
 if [ "$serverrcon" != "" ];then echo 'rcon_password="'${serverrcon}'"' >> $installlocation/gesource/cfg/server.cfg;fi
 if [ "$serverpassword" != "" ];then echo 'sv_password="'${serverpassword}'"' >> $installlocation/gesource/cfg/server.cfg;fi
 if [ "$serverregion" != "0" ];then echo 'sv_region="'${serverregion}'"' >> $installlocation/gesource/cfg/server.cfg;fi
