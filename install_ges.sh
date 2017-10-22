@@ -596,7 +596,7 @@ do
 	fi
 		if [ -e /proc/$pid1 ] || [ -e /proc/$pid3 ] || [ -e /proc/$pid4 ] || [ -e /proc/$pid5 ] || [ -e /proc/$pid6 ] || [ -e /proc/$pid8 ] || [ -e /proc/$pid9 ] || [ -e /proc/$pid10 ] || [ -e /proc/$pid11 ];then
 			if [ "$frn" == "0" ];then 
-			echo -e "$UL$EL$UL$EL$UL$EL$UL$EL$UL$EL$UL$EL$UL$EL$UL$EL$UL$EL$UL$EL\c"
+			echo -e "$UL$EL$UL$EL$UL$EL$UL$EL$UL$EL$UL$EL$UL$EL$UL$EL\c"
 			fi
 			frn=0
 			echo "	${green}Create Directory Structure${reset} [ ${dirstrpro} ]"
@@ -609,7 +609,7 @@ do
 			echo "	${green}Source 2007 Dedicated Server Install${reset} [ ${dedsvrext} ]"			
 			sleep 1
 		else
-			echo -e "$UL$EL$UL$EL$UL$EL$UL$EL$UL$EL$UL$EL$UL$EL$UL$EL$UL$EL$UL$EL\c"
+			echo -e "$UL$EL$UL$EL$UL$EL$UL$EL$UL$EL$UL$EL$UL$EL$UL$EL\c"
 			echo "	${green}Create Directory Structure${reset} [ ${dirstrpro} ]"
 			echo "	${green}Steamcmd Download${reset} [ ${cmddlpro} ]"
 			echo "	${green}GoldenEye:Source Server Files Download${reset} [ ${gessvrdl} ]"
