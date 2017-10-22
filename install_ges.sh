@@ -382,7 +382,7 @@ pid11=$!
 
 {
 while [ -e /proc/${pid4} ]; do sleep 0.25; done
-su $useraccount -c '7z x -y -o'$installlocation'/gesource '$serverfilesdlname' > /dev/null'
+su $useraccount -c '7z x -y -o'$installlocation'/ '$serverfilesdlname' > /dev/null'
 if [ "$servername" != $serververname ];then sed -i '/hostname "Gold/c\""/g' $installlocation/gesource/cfg/server.cfg;fi
 if [ "$serverrcon" != "" ];then sed -i '/rcon_password "/c\""/g' $installlocation/gesource/cfg/server.cfg;fi
 if [ "$serverpassword" != "" ];then sed -i '/sv_password "/c\""/g' $installlocation/gesource/cfg/server.cfg;fi
